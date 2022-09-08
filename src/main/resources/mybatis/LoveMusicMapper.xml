@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.music.mapper.LoveMusicMapper">
+
+    <!--像喜欢列表查找歌曲-->
+    <select id="findLoveMusicByMusicIdAndUserId" resultType="com.example.music.model.Music">
+        select * from lovemusic where user_id=#{userid} and music_id=#{musicid}
+    </select>
+
+    <!--像喜欢列表插入歌曲-->
+    <insert id="insertLoveMusic">
+        insert into lovemusic(user_id,music_id) values(#{userid},#{musicid})
+    </insert>
+
+    <!--当歌曲名为空时，根据用户id查找所有夏欢的音乐-->
+    <select id="findLoveMusicByUserId" resultType="com.example.music.model.Music">
+        select m.* from lovemusic lm ,music m where lm.music_id=m.id and lm.user_id=#{userid}
+    </select>
+
+    <!--根据歌曲名和用户id查找夏欢的音乐-->
+    <select id="findLoveMusicBykeyAndUID" resultType="com.example.music.model.Music">
+        select m.* from lovemusic lm ,music m where lm.music_id=m.id and lm.user_id=#{userid} and
+        title like concat('%',#{musicName},'%')
+    </select>
+
+    <!--移除收藏的歌曲-->
+    <delete id="deleteLoveMusic" parameterType="java.lang.Integer">
+        delete from lovemusic where user_id=#{userid} and music_id=#{musicid}
+    </delete>
+
+    <!--移除收藏的歌曲-->
+    <delete id="deleteLoveMusicById" parameterType="java.lang.Integer">
+        delete from lovemusic where music_id=#{musicid}
+    </delete>
+
+
+
+</mapper>

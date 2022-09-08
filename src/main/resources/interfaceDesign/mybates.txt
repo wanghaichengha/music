@@ -1,0 +1,237 @@
+数据库设计
+-----------------------------------------------------------------------------------------------
+创建数据库music
+
+-- 数据库
+drop database if exists `music`;
+create database if not exists `music` character set utf8;
+
+-- 使用数据库
+use `music`;
+------------------------------------------------------------------------------------------------
+
+创建表user
+
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user` (
+  `id` INT PRIMARY KEY AUTO_INCREMENT,    #用户id
+  `username` varchar(20) NOT NULL,        #用户名字
+  `password` varchar(255) NOT NULL        #用户密码
+);
+#添加一个用户
+INSERT INTO user(username,password)
+VALUES("哈哈","$2a$10$Bs4wNEkledVlGZa6wSfX7eCSD7wRMO0eUwkJH0WyhXzKQJrnk85li")------------------------------------------------------------------------------------------------
+
+创建表music
+
+DROP TABLE IF EXISTS `music`;
+CREATE TABLE `music` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,     #歌曲id
+  `title` varchar(50) NOT NULL,            #歌曲名称
+  `singer` varchar(30) NOT NULL,           #歌手名字
+  `time` varchar(13) NOT NULL,             #上传歌曲时间
+  `url` varchar(1000) NOT NULL,            #存储位置
+  `userid` int(11) NOT NULL                #上传歌曲的人的id
+);
+INSERT INTO music(title,singer,time,url,userid)
+VALUES("白月光与朱砂痣","大籽","2000-7-27","D:/musicList/","1");
+-----------------------------------------------------------------------------------------------
+
+创建中间表lovemusic
+
+DROP TABLE IF EXISTS `lovemusic`;
+CREATE TABLE `lovemusic` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,     #喜爱歌曲id
+  `user_id` int(11) NOT NULL,              #用户id
+  `music_id` int(11) NOT NULL              #歌曲id
+);
+
+------------------------------------------------------------------------------------------------
+1，登录的请求和响应设计
+请求：
+{
+  post,
+  /user/login
+  data:{username,password}
+}
+响应：
+{
+  "status": 0,
+  "message": "登录成功",
+  "data": {
+  "id": xxxxx,
+  "username": xxxxxx,
+  "password": xxxxxxxx
+}
+
+2，上传音乐请求和响应设计
+请求：
+{
+  post,
+  /music/upload
+  {singer，MultipartFile file}，
+}
+响应：
+{
+  "status": 0,
+  "message": "上传成功！",
+  "data": true
+}
+
+
+3,播放音乐模块设计
+请求：
+{
+  get,
+  /music/get?path=xxx.mp3
+}
+  响应：
+{
+  音乐数据本身的字节信息
+}
+
+4,删除音乐
+请求：
+{
+  post,
+  /music/delete,
+  id
+}
+响应：
+{
+  "status": 0,
+  "message": "删除成功！",
+  "data": true
+}
+5,批量删除歌曲
+请求：
+{
+  post,
+  /music/deleteSel,
+  data:{"id":id}
+}
+响应：
+{
+  "status": 0,
+  "message": "批量删除成功",
+  "data": true
+}
+
+6,查询歌曲，支持模糊查询
+请求：
+{
+  get,
+  /music/findmusic,
+  data:{musicName:musicName},
+}
+  响应：【不给musicName传参】
+{
+  "status": 0,
+  "message": "查询到了歌曲的信息",
+  "data": [
+     {
+    "id": 20,
+    "title": "liu",
+    "singer": "bit",
+    "url": "/music/get?path=liu",
+    "time": "2022-03-28",
+    "userid": 3
+    }
+  ]
+}
+  响应：【给musicName传参】
+{
+  "status": 0,
+  "message": "查询到了歌曲的信息",
+  "data": [
+    {
+    "id": 19,
+    "title": "银河与星斗（女生版）",
+    "singer": "gaobo",
+    "url": "/music/get?path=银河与星斗（女生版）",
+    "time": "2022-03-28",
+    "userid": 3
+    }
+  ]
+}
+
+7,添加音乐至喜欢的列表模块设计
+请求：
+{
+  post,
+  /lovemusic/likeMusic
+  data: id//音乐id
+}
+响应：
+{
+  "status": 0,
+  "message": "点赞音乐成功",
+  "data": true
+}
+8,查询喜欢的音乐模块
+//支持模糊查询，支持传入参数为空
+请求：
+{
+  get,
+  /lovemusic/findlovemusic,
+  data:{musicName:musicName}
+}
+  响应：【musicName不进行传参】
+{
+  "status": 0,
+  "message": "查询到了所有的收藏的音乐",
+  "data": [
+     {
+    "id": 19,
+    "title": "银河与星斗（女生版）",
+    "singer": "gaobo",
+    "url": "/music/get?path=银河与星斗（女生版）",
+    "time": "2022-03-28",
+    "userid": 3
+    },
+    {
+    "id": 20,
+    "title": "liu",
+    "singer": "bit",
+    "url": "/music/get?path=liu",
+    "time": "2022-03-28",
+    "userid": 3
+    }
+    ]
+    }
+响应：【musicName进行传参】
+{
+   "status": 0,
+   "message": "查询到了所有的收藏的音乐",
+   "data": [
+    {
+    "id": 19,
+    "title": "银河与星斗（女生版）",
+    "singer": "gaobo",
+    "url": "/music/get?path=银河与星斗（女生版）",
+    "time": "2022-03-28",
+    "userid": 3
+    }
+    ]
+}
+9，移除收藏歌曲
+请求：
+{
+  post,
+  /lovemusic/deletelovemusic,
+  data:{id:id}
+}
+响应：
+{
+  "status": 0,
+  "message": "取消收藏成功！",
+  "data": true
+}
+
+
+
+
+
+
+
+
